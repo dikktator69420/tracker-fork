@@ -1,0 +1,55 @@
+<!-- src/app/components/list/list.component.html -->
+<div class="list-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>My Saved Locations</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="loading" class="loading">Loading your locations...</div>
+      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+      <div *ngIf="!loading && locations.length === 0" class="no-locations">
+        <p>You haven't saved any locations yet.</p>
+        <button mat-raised-button color="primary" routerLink="/tracker">
+          Go to Tracker
+        </button>
+      </div>
+
+      <div *ngIf="locations.length > 0">
+        <div id="locations-map" class="map-container"></div>
+
+        <h3>Location History ({{ locations.length }})</h3>
+
+        <mat-list>
+          <mat-list-item
+            *ngFor="let location of locations; let i = index"
+            class="location-item"
+          >
+            <div matListItemTitle>Location #{{ i + 1 }}</div>
+            <div matListItemLine>
+              Latitude: {{ location.latitude | number : "1.6-6" }}
+            </div>
+            <div matListItemLine>
+              Longitude: {{ location.longitude | number : "1.6-6" }}
+            </div>
+            <div matListItemLine>Time: {{ formatDate(location.time) }}</div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+      <div class="button-container">
+        <button mat-raised-button color="primary" routerLink="/tracker">
+          <mat-icon>add_location</mat-icon> Add New Location
+        </button>
+        <button
+          mat-raised-button
+          (click)="fetchLocations()"
+          [disabled]="loading"
+        >
+          <mat-icon>refresh</mat-icon> Refresh List
+        </button>
+      </div></mat-card-content
+    ></mat-card
+  >
+</div>

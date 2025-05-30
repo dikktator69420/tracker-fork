@@ -1,0 +1,15 @@
+<!-- src/app/app.component.html -->
+<mat-toolbar color="primary">
+  <span>{{ title }}</span>
+  <span class="spacer"></span>
+  <ng-container *ngIf="authService.currentUserValue">
+    <button mat-button routerLink="/tracker">Tracker</button>
+    <button mat-button routerLink="/list">My Locations</button>
+    <button mat-button routerLink="/profile">Profile</button>
+    <button mat-button (click)="logout()">Logout</button>
+  </ng-container>
+</mat-toolbar>
+
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

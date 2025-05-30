@@ -1,0 +1,47 @@
+<!-- src/app/components/tracker/tracker.component.html -->
+<div class="tracker-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Location Tracker</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="currentPosition" class="location-info">
+        <h3>Current Location</h3>
+        <p>
+          Latitude: {{ currentPosition.coords.latitude | number : "1.6-6" }}
+        </p>
+        <p>
+          Longitude: {{ currentPosition.coords.longitude | number : "1.6-6" }}
+        </p>
+        <p>
+          Accuracy:
+          {{ currentPosition.coords.accuracy | number : "1.2-2" }} meters
+        </p>
+        <p>Time: {{ currentPosition.timestamp | date : "medium" }}</p>
+      </div>
+
+      <div id="map"></div>
+
+      <div class="button-container">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="saveLocation()"
+          [disabled]="!currentPosition || savingLocation"
+        >
+          <mat-icon>save</mat-icon> Save Location
+        </button>
+        <button mat-raised-button (click)="refreshLocation()">
+          <mat-icon>refresh</mat-icon> Refresh Location
+        </button>
+        <button mat-raised-button color="accent" routerLink="/list">
+          <mat-icon>list</mat-icon> View All Locations
+        </button>
+      </div>
+
+      <div *ngIf="message" class="success-message">{{ message }}</div>
+      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    </mat-card-content>
+  </mat-card>
+</div>
