@@ -1,3 +1,4 @@
+// tracker-app/src/app/components/tracker/tracker.component.ts
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -33,6 +34,10 @@ export class TrackerComponent implements OnInit, AfterViewInit {
   savingLocation = false;
   gettingLocation = false;
   user$: Observable<UserProfile | null | undefined>;
+  
+  // Add missing properties
+  message = '';
+  errorMessage = '';
 
   constructor(
     private locationService: LocationService,
@@ -43,7 +48,6 @@ export class TrackerComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Add Leaflet CSS to the document
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
@@ -58,16 +62,13 @@ export class TrackerComponent implements OnInit, AfterViewInit {
   }
 
   initMap(): void {
-    // Create map with default view
-    this.map = L.map('map').setView([48.2082, 16.3738], 10); // Vienna, Austria
+    this.map = L.map('map').setView([48.2082, 16.3738], 10);
 
-    // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
-    // Fix Leaflet marker icons
     const iconRetinaUrl =
       'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png';
     const iconUrl =
@@ -97,10 +98,8 @@ export class TrackerComponent implements OnInit, AfterViewInit {
         this.currentPosition = position;
         const { latitude, longitude } = position.coords;
 
-        // Update map view
         this.map.setView([latitude, longitude], 15);
 
-        // Add marker for current position
         if (this.marker) {
           this.marker.setLatLng([latitude, longitude]);
         } else {
@@ -140,15 +139,16 @@ export class TrackerComponent implements OnInit, AfterViewInit {
     this.locationService.saveLocation(latitude, longitude).subscribe({
       next: () => {
         this.savingLocation = false;
+        this.message = 'Location saved successfully!';
+        this.errorMessage = '';
         this.showSnackBar('Location saved successfully!', 'success');
       },
       error: (error: any) => {
         console.error('Error saving location:', error);
         this.savingLocation = false;
-        this.showSnackBar(
-          'Failed to save location. Please try again.',
-          'error'
-        );
+        this.errorMessage = 'Failed to save location. Please try again.';
+        this.message = '';
+        this.showSnackBar('Failed to save location. Please try again.', 'error');
       },
     });
   }

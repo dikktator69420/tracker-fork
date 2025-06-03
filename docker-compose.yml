@@ -1,0 +1,43 @@
+# docker-compose.yml (create in project root)
+version: '3.8'
+services:
+  database:
+    image: mysql:8.0
+    container_name: tracker-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: tracker25
+      MYSQL_USER: tracker25
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./tracker-server-basic/tracker-server-basic/tracker25.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  backend:
+    build:
+      context: ./tracker-server-basic/tracker-server-basic
+      dockerfile: Dockerfile
+    container_name: tracker-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=database
+      - DB_USER=tracker25
+      - DB_PASSWORD=password
+      - DB_NAME=tracker25
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./tracker-server-basic/tracker-server-basic:/app
+      - /app/node_modules
+
+volumes:
+  mysql_data:

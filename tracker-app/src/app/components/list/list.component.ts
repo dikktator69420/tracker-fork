@@ -76,7 +76,7 @@ export class ListComponent implements OnInit {
   addLocationMarkers(): void {
     if (this.locations.length === 0) return;
 
-    const bounds = L.latLngBounds();
+    const bounds = L.latLngBounds([]);
     const markers: L.Marker[] = [];
 
     this.locations.forEach((location, index) => {

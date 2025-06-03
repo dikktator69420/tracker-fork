@@ -1,8 +1,8 @@
+// tracker-app/src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { AuthService as Auth0Service } from '@auth0/auth0-angular';
 import { Observable, map, switchMap, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 
 export interface UserProfile {
   sub?: string;
@@ -14,7 +14,6 @@ export interface UserProfile {
   family_name?: string;
   locale?: string;
   updated_at?: string;
-  // Custom app metadata
   app_metadata?: {
     role?: string;
     permissions?: string[];
@@ -30,7 +29,6 @@ export interface UserProfile {
 export class AuthService {
   constructor(private auth0: Auth0Service, private http: HttpClient) {}
 
-  // Auth0 authentication observables
   get isAuthenticated$(): Observable<boolean> {
     return this.auth0.isAuthenticated$;
   }
@@ -47,7 +45,6 @@ export class AuthService {
     return this.auth0.error$;
   }
 
-  // Authentication methods
   login(): void {
     this.auth0.loginWithRedirect();
   }
@@ -64,16 +61,16 @@ export class AuthService {
     });
   }
 
-  // Token management
   getAccessToken(): Observable<string> {
     return this.auth0.getAccessTokenSilently();
   }
 
   getAccessTokenWithOptions(options: any): Observable<string> {
-    return this.auth0.getAccessTokenSilently(options);
+    return this.auth0.getAccessTokenSilently(options).pipe(
+  map((response: any) => response.access_token || response)
+);
   }
 
-  // User profile management
   getCurrentUser(): Observable<UserProfile | null> {
     return this.isAuthenticated$.pipe(
       switchMap((isAuthenticated: any) => {
@@ -97,10 +94,9 @@ export class AuthService {
     );
   }
 
-  // Role and permission checking
   hasRole(role: string): Observable<boolean> {
     return this.user$.pipe(
-      map((user: { app_metadata: { role: string } }) => {
+      map((user: UserProfile | null | undefined) => {
         if (!user?.app_metadata?.role) return false;
         return user.app_metadata.role === role;
       })
@@ -109,7 +105,7 @@ export class AuthService {
 
   hasPermission(permission: string): Observable<boolean> {
     return this.user$.pipe(
-      map((user: { app_metadata: { permissions: string | string[] } }) => {
+      map((user: UserProfile | null | undefined) => {
         if (!user?.app_metadata?.permissions) return false;
         return user.app_metadata.permissions.includes(permission);
       })
@@ -124,21 +120,21 @@ export class AuthService {
     return this.hasPermission('manage:locations');
   }
 
-  // Helper methods
   getUserId(): Observable<string | null> {
-    return this.user$.pipe(map((user: string) => user?.sub || null));
+    return this.user$.pipe(
+      map((user: UserProfile | null | undefined) => user?.sub || null)
+    );
   }
 
   getUserEmail(): Observable<string | null> {
-    return this.user$.pipe(map((user: { email: any }) => user?.email || null));
+    return this.user$.pipe(
+      map((user: UserProfile | null | undefined) => user?.email || null)
+    );
   }
 
   getUserName(): Observable<string | null> {
     return this.user$.pipe(
-      map(
-        (user: { name: any; nickname: any }) =>
-          user?.name || user?.nickname || null
-      )
+      map((user: UserProfile | null | undefined) => user?.name || user?.nickname || null)
     );
   }
 }

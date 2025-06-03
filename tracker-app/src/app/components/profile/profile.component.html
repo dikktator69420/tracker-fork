@@ -15,14 +15,12 @@
       <mat-card-title>User Profile</mat-card-title>
       <mat-card-subtitle>Managed by Auth0</mat-card-subtitle>
     </mat-card-header>
-
     <mat-card-content>
       <!-- Loading state -->
       <div *ngIf="isLoading$ | async" class="loading-container">
         <mat-spinner diameter="40"></mat-spinner>
         <p>Loading profile...</p>
       </div>
-
       <!-- Profile data -->
       <div *ngIf="user$ | async as user" class="profile-content">
         <!-- Basic Information -->
@@ -31,57 +29,47 @@
             <mat-icon>person</mat-icon>
             Basic Information
           </h3>
-
           <div class="profile-fields">
             <div class="profile-field">
               <label>Name:</label>
               <span>{{ user.name || "Not provided" }}</span>
             </div>
-
             <div class="profile-field">
               <label>Email:</label>
               <span>{{ user.email || "Not provided" }}</span>
             </div>
-
             <div class="profile-field" *ngIf="user.nickname">
               <label>Nickname:</label>
               <span>{{ user.nickname }}</span>
             </div>
-
             <div class="profile-field" *ngIf="user.locale">
               <label>Locale:</label>
               <span>{{ user.locale }}</span>
             </div>
-
             <div class="profile-field" *ngIf="user.updated_at">
               <label>Last Updated:</label>
               <span>{{ user.updated_at | date : "medium" }}</span>
             </div>
           </div>
         </div>
-
         <mat-divider></mat-divider>
-
         <!-- Account Information -->
         <div class="profile-section">
           <h3>
             <mat-icon>account_circle</mat-icon>
             Account Information
           </h3>
-
           <div class="profile-fields">
             <div class="profile-field">
               <label>User ID:</label>
               <span class="user-id">{{ user.sub }}</span>
             </div>
-
             <div class="profile-field" *ngIf="user.app_metadata?.role">
               <label>Role:</label>
               <mat-chip class="role-chip">{{
-                user.app_metadata.role
+                user.app_metadata?.role
               }}</mat-chip>
             </div>
-
             <div
               class="profile-field"
               *ngIf="user.app_metadata?.permissions?.length"
@@ -89,7 +77,7 @@
               <label>Permissions:</label>
               <div class="permissions">
                 <mat-chip
-                  *ngFor="let permission of user.app_metadata.permissions"
+                  *ngFor="let permission of user.app_metadata?.permissions"
                   class="permission-chip"
                 >
                   {{ permission }}
@@ -98,21 +86,17 @@
             </div>
           </div>
         </div>
-
         <mat-divider></mat-divider>
-
         <!-- Actions -->
         <div class="profile-actions">
           <button mat-raised-button color="primary" (click)="updateProfile()">
             <mat-icon>edit</mat-icon>
             Edit Profile in Auth0
           </button>
-
           <button mat-stroked-button color="accent" (click)="viewAccessToken()">
             <mat-icon>security</mat-icon>
             View Access Token
           </button>
-
           <button mat-stroked-button routerLink="/tracker">
             <mat-icon>arrow_back</mat-icon>
             Back to Tracker

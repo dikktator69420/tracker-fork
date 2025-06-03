@@ -1,3 +1,4 @@
+// tracker-app/src/app/app.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
@@ -6,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider'; // Add this import
 import { AuthService } from './services/auth.service';
 import { Observable } from 'rxjs';
 import { UserProfile } from './services/auth.service';
@@ -21,11 +23,13 @@ import { UserProfile } from './services/auth.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatMenuModule,
+    MatDividerModule, // Add this to imports
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  // ... rest of the component stays the same
   title = 'Location Tracker';
 
   isAuthenticated$: Observable<boolean>;
@@ -39,15 +43,12 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Handle authentication state changes
     this.isAuthenticated$.subscribe((isAuthenticated: boolean) => {
       if (isAuthenticated) {
-        // User is logged in, redirect to tracker if on login page
         if (this.router.url === '/login' || this.router.url === '/') {
           this.router.navigate(['/tracker']);
         }
       } else {
-        // User is not logged in, redirect to login page
         if (
           this.router.url !== '/login' &&
           this.router.url !== '/callback' &&
