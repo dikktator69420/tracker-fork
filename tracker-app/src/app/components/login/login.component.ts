@@ -1,112 +1,57 @@
-// src/app/components/login/login.component.ts
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../services/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatDividerModule,
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
-  registerForm: FormGroup;
-  errorMessage = '';
-  successMessage = '';
-  savedUsername: string | null = null;
+  isLoading$: Observable<boolean>;
+  error$: Observable<Error | null>;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private authService: AuthService,
-    private router: Router
-  ) {
-    // Initialize form with empty controls
-    this.loginForm = this.formBuilder.group({});
-    this.registerForm = this.formBuilder.group({});
+  constructor(private authService: AuthService, private router: Router) {
+    this.isLoading$ = this.authService.isLoading$;
+    this.error$ = this.authService.error$;
   }
 
   ngOnInit(): void {
-    // Redirect if already logged in
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/tracker']);
-    }
-
-    // Get the saved username from localStorage
-    this.savedUsername = localStorage.getItem('lastUsername');
-
-    this.initForms();
-  }
-
-  initForms(): void {
-    // Login form with validation and pre-filled username
-    this.loginForm = this.formBuilder.group({
-      username: [this.savedUsername || '', [Validators.required]],
-      password: ['', [Validators.required]],
-    });
-
-    // Register form with validation
-    this.registerForm = this.formBuilder.group(
-      {
-        username: ['', [Validators.required, Validators.minLength(6)]],
-        email: [
-          '',
-          [
-            Validators.required,
-            Validators.pattern(
-              /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-            ),
-          ],
-        ],
-        password: ['', [Validators.required, Validators.minLength(7)]],
-        confirmPassword: ['', [Validators.required]],
-      },
-      {
-        validators: this.passwordMatchValidator,
+    // Check if user is already authenticated
+    this.authService.isAuthenticated$.subscribe((isAuthenticated: boolean) => {
+      if (isAuthenticated) {
+        this.router.navigate(['/tracker']);
       }
-    );
+    });
   }
 
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')?.value;
-    const confirmPassword = form.get('confirmPassword')?.value;
-
-    return password === confirmPassword ? null : { passwordMismatch: true };
+  login(): void {
+    this.authService.login();
   }
 
-  onLogin(): void {
-    if (this.loginForm.invalid) {
-      return;
-    }
-
-    const { username, password } = this.loginForm.value;
-    this.authService.login(username, password).subscribe({
+  loginWithPopup(): void {
+    this.authService.loginWithPopup().subscribe({
       next: () => {
         this.router.navigate(['/tracker']);
       },
-      error: (error: { error: { message: string } }) => {
-        this.errorMessage =
-          error.error?.message || 'Login failed. Please try again.';
-      },
-    });
-  }
-
-  onRegister(): void {
-    if (this.registerForm.invalid) {
-      return;
-    }
-
-    const { username, password, email } = this.registerForm.value;
-    this.authService.register(username, password, email).subscribe({
-      next: () => {
-        this.successMessage = 'Registration successful. Please log in.';
-        // Store the username after successful registration
-        localStorage.setItem('lastUsername', username);
-        this.registerForm.reset();
-      },
-      error: (error: { error: { message: string } }) => {
-        this.errorMessage =
-          error.error?.message || 'Registration failed. Please try again.';
+      error: (error: any) => {
+        console.error('Login failed:', error);
       },
     });
   }

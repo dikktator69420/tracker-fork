@@ -1,0 +1,54 @@
+.list-container {
+  max-width: 1200px;
+  margin: 20px auto;
+}
+
+.map-container {
+  height: 400px;
+  width: 100%;
+  border-radius: 4px;
+  margin: 20px 0;
+  border: 1px solid #ddd;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.error-message {
+  color: red;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.no-locations {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.location-item {
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.location-item:last-child {
+  border-bottom: none;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+h3 {
+  margin: 20px 0 10px 0;
+  color: #333;
+}

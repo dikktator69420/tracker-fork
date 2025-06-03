@@ -2,47 +2,155 @@
 .profile-container {
   max-width: 800px;
   margin: 20px auto;
+  padding: 0 16px;
 }
 
-.profile-form {
+.profile-card {
+  width: 100%;
+}
+
+.profile-avatar {
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.loading-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 0;
+
+  p {
+    margin: 0;
+    color: #666;
+  }
 }
 
-.form-section {
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 4px;
+.profile-content {
+  padding: 16px 0;
+}
+
+.profile-section {
+  margin: 24px 0;
 
   h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
     color: #333;
-  }
+    font-size: 18px;
 
-  mat-form-field {
-    width: 100%;
-    margin-bottom: 10px;
+    mat-icon {
+      color: #3f51b5;
+    }
   }
 }
 
-.form-actions {
+.profile-fields {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+
+  label {
+    font-weight: 500;
+    color: #555;
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+
+  span {
+    color: #333;
+    word-break: break-word;
+  }
+
+  .user-id {
+    font-family: "Courier New", monospace;
+    font-size: 12px;
+    background-color: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+}
+
+.role-chip {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.permissions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.permission-chip {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+  font-size: 12px;
+  height: 24px;
+  line-height: 24px;
+}
+
+mat-divider {
+  margin: 24px 0;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
 
   button {
-    min-width: 120px;
+    min-width: 160px;
+
+    mat-icon {
+      margin-right: 4px;
+    }
   }
 }
 
-.success-message {
-  color: green;
-  margin-top: 10px;
-}
+@media (max-width: 600px) {
+  .profile-container {
+    margin: 10px;
+    padding: 0;
+  }
 
-.error-message {
-  color: red;
-  margin-top: 10px;
+  .profile-field {
+    flex-direction: column;
+    gap: 4px;
+
+    label {
+      min-width: auto;
+      font-size: 14px;
+    }
+  }
+
+  .profile-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+      min-width: auto;
+    }
+  }
 }

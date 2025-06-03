@@ -1,11 +1,25 @@
-// src/app/components/list/list.component.ts
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { Location } from '../../models/location.model';
 import { LocationService } from '../../services/location.service';
 import * as L from 'leaflet';
 
 @Component({
   selector: 'app-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
+  ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
 })

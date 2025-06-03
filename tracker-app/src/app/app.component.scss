@@ -8,3 +8,44 @@
   max-width: 1200px;
   margin: 0 auto;
 }
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-info {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+
+  .user-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .user-email {
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+mat-spinner {
+  margin-right: 16px;
+}
+
+button[mat-button] {
+  margin-right: 8px;
+
+  mat-icon {
+    margin-right: 4px;
+  }
+}

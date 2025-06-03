@@ -1,95 +1,58 @@
-// src/app/components/profile/profile.component.ts
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { User } from '../../models/user.model';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService, UserProfile } from '../../services/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatChipsModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
-  profileForm: FormGroup;
-  user: User | null = null;
-  errorMessage = '';
-  successMessage = '';
-  loading = false;
+  user$: Observable<UserProfile | null | undefined>;
+  isLoading$: Observable<boolean>;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private authService: AuthService,
-    private router: Router
-  ) {
-    // Initialize form with empty groups
-    this.profileForm = this.formBuilder.group({
-      systemData: this.formBuilder.group({}),
-      personalData: this.formBuilder.group({}),
-      addressData: this.formBuilder.group({}),
-    });
+  constructor(private authService: AuthService) {
+    this.user$ = this.authService.user$;
+    this.isLoading$ = this.authService.isLoading$;
   }
 
   ngOnInit(): void {
-    // Check if user is logged in
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/map']);
-      return;
-    }
-
-    this.user = this.authService.currentUserValue;
-    this.initForm();
+    // Profile data is automatically loaded by Auth0
   }
 
-  initForm(): void {
-    // Create nested form groups with validation
-    this.profileForm = this.formBuilder.group({
-      systemData: this.formBuilder.group({
-        username: [{ value: this.user?.username, disabled: true }],
-        email: [this.user?.email, [Validators.required, Validators.email]],
-      }),
-      personalData: this.formBuilder.group({
-        firstname: [this.user?.firstname || ''],
-        lastname: [this.user?.lastname || ''],
-        sex: [this.user?.sex || ''],
-      }),
-      addressData: this.formBuilder.group({
-        address: [this.user?.address || ''],
-        postalCode: [this.user?.postalCode || ''],
-        city: [this.user?.city || ''],
-        country: [this.user?.country || ''],
-      }),
-    });
+  updateProfile(): void {
+    // Redirect to Auth0 Profile Management
+    window.open('https://YOUR_AUTH0_DOMAIN/u/profile', '_blank');
   }
 
-  onSubmit(): void {
-    if (this.profileForm.invalid) {
-      return;
-    }
-
-    this.loading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    // Combine form values from all groups
-    const formValues = {
-      ...this.profileForm.get('systemData')?.value,
-      ...this.profileForm.get('personalData')?.value,
-      ...this.profileForm.get('addressData')?.value,
-    };
-
-    // Username is disabled in form, so add it back
-    formValues.username = this.user?.username;
-
-    this.authService.updateProfile(formValues).subscribe({
-      next: () => {
-        this.successMessage = 'Profile updated successfully';
-        this.loading = false;
+  viewAccessToken(): void {
+    this.authService.getAccessToken().subscribe({
+      next: (token: any) => {
+        console.log('Access Token:', token);
+        // In production, you might want to show this in a dialog instead
+        alert('Access token logged to console (F12)');
       },
-      error: (error) => {
-        this.errorMessage =
-          error.error?.message || 'Failed to update profile. Please try again.';
-        this.loading = false;
+      error: (error: any) => {
+        console.error('Error getting access token:', error);
       },
     });
   }

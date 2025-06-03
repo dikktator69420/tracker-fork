@@ -1,13 +1,66 @@
-<!-- src/app/app.component.html -->
 <mat-toolbar color="primary">
   <span>{{ title }}</span>
   <span class="spacer"></span>
-  <ng-container *ngIf="authService.currentUserValue">
-    <button mat-button routerLink="/tracker">Tracker</button>
-    <button mat-button routerLink="/list">My Locations</button>
-    <button mat-button routerLink="/profile">Profile</button>
-    <button mat-button (click)="logout()">Logout</button>
+
+  <!-- Loading spinner -->
+  <mat-spinner *ngIf="isLoading$ | async" diameter="24" color="accent">
+  </mat-spinner>
+
+  <!-- Authenticated user menu -->
+  <ng-container *ngIf="isAuthenticated$ | async">
+    <button mat-button routerLink="/tracker" data-cy="tracker-button">
+      <mat-icon>location_on</mat-icon>
+      Tracker
+    </button>
+    <button mat-button routerLink="/list" data-cy="locations-button">
+      <mat-icon>list</mat-icon>
+      My Locations
+    </button>
+    <button mat-button routerLink="/profile" data-cy="profile-button">
+      <mat-icon>person</mat-icon>
+      Profile
+    </button>
+
+    <!-- User menu -->
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <img
+        *ngIf="(user$ | async)?.picture; else defaultAvatar"
+        [src]="(user$ | async)?.picture"
+        alt="User Avatar"
+        class="user-avatar"
+      />
+      <ng-template #defaultAvatar>
+        <mat-icon>account_circle</mat-icon>
+      </ng-template>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <div class="user-info">
+        <div class="user-name">{{ (user$ | async)?.name }}</div>
+        <div class="user-email">{{ (user$ | async)?.email }}</div>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item routerLink="/profile">
+        <mat-icon>settings</mat-icon>
+        Settings
+      </button>
+      <button mat-menu-item (click)="logout()" data-cy="logout-button">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+    </mat-menu>
   </ng-container>
+
+  <!-- Login button for unauthenticated users -->
+  <button
+    *ngIf="!(isAuthenticated$ | async) && !(isLoading$ | async)"
+    mat-raised-button
+    color="accent"
+    (click)="login()"
+  >
+    <mat-icon>login</mat-icon>
+    Login
+  </button>
 </mat-toolbar>
 
 <div class="container">

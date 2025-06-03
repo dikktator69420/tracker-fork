@@ -1,106 +1,124 @@
-<!-- src/app/components/profile/profile.component.html -->
 <div class="profile-container">
-  <mat-card>
+  <mat-card class="profile-card">
     <mat-card-header>
-      <mat-card-title>Profile Settings</mat-card-title>
+      <div mat-card-avatar class="profile-avatar">
+        <img
+          *ngIf="(user$ | async)?.picture; else defaultAvatar"
+          [src]="(user$ | async)?.picture"
+          alt="Profile Picture"
+          class="avatar-image"
+        />
+        <ng-template #defaultAvatar>
+          <mat-icon>person</mat-icon>
+        </ng-template>
+      </div>
+      <mat-card-title>User Profile</mat-card-title>
+      <mat-card-subtitle>Managed by Auth0</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
-      <form
-        [formGroup]="profileForm"
-        (ngSubmit)="onSubmit()"
-        class="profile-form"
-      >
-        <!-- System Data -->
-        <div formGroupName="systemData" class="form-section">
-          <h3>System Data</h3>
-          <mat-form-field appearance="outline">
-            <mat-label>Username</mat-label>
-            <input matInput formControlName="username" disabled />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email" type="email" />
-            <mat-error
-              *ngIf="profileForm.get('systemData')?.get('email')?.errors?.['required']"
-              >Email is required</mat-error
-            >
-            <mat-error
-              *ngIf="profileForm.get('systemData')?.get('email')?.errors?.['email']"
-              >Please enter a valid email</mat-error
-            >
-          </mat-form-field>
-        </div>
-
-        <!-- Personal Data -->
-        <div formGroupName="personalData" class="form-section">
-          <h3>Personal Data</h3>
-          <mat-form-field appearance="outline">
-            <mat-label>First Name</mat-label>
-            <input matInput formControlName="firstname" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Last Name</mat-label>
-            <input matInput formControlName="lastname" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Sex</mat-label>
-            <mat-select formControlName="sex">
-              <mat-option value="male">Male</mat-option>
-              <mat-option value="female">Female</mat-option>
-              <mat-option value="other">Other</mat-option>
-              <mat-option value="prefer-not-to-say"
-                >Prefer not to say</mat-option
-              >
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <!-- Address Data -->
-        <div formGroupName="addressData" class="form-section">
-          <h3>Address Data</h3>
-          <mat-form-field appearance="outline">
-            <mat-label>Address</mat-label>
-            <input matInput formControlName="address" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Postal Code</mat-label>
-            <input matInput formControlName="postalCode" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>City</mat-label>
-            <input matInput formControlName="city" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Country</mat-label>
-            <input matInput formControlName="country" />
-          </mat-form-field>
-        </div>
-
-        <div class="form-actions">
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="profileForm.invalid || loading"
-          >
-            Save Changes
-          </button>
-          <button mat-button routerLink="/tracker" type="button">Cancel</button>
-        </div>
-      </form>
-
-      <!-- Message area -->
-      <div *ngIf="successMessage" class="success-message">
-        {{ successMessage }}
+      <!-- Loading state -->
+      <div *ngIf="isLoading$ | async" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading profile...</p>
       </div>
-      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+      <!-- Profile data -->
+      <div *ngIf="user$ | async as user" class="profile-content">
+        <!-- Basic Information -->
+        <div class="profile-section">
+          <h3>
+            <mat-icon>person</mat-icon>
+            Basic Information
+          </h3>
+
+          <div class="profile-fields">
+            <div class="profile-field">
+              <label>Name:</label>
+              <span>{{ user.name || "Not provided" }}</span>
+            </div>
+
+            <div class="profile-field">
+              <label>Email:</label>
+              <span>{{ user.email || "Not provided" }}</span>
+            </div>
+
+            <div class="profile-field" *ngIf="user.nickname">
+              <label>Nickname:</label>
+              <span>{{ user.nickname }}</span>
+            </div>
+
+            <div class="profile-field" *ngIf="user.locale">
+              <label>Locale:</label>
+              <span>{{ user.locale }}</span>
+            </div>
+
+            <div class="profile-field" *ngIf="user.updated_at">
+              <label>Last Updated:</label>
+              <span>{{ user.updated_at | date : "medium" }}</span>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Account Information -->
+        <div class="profile-section">
+          <h3>
+            <mat-icon>account_circle</mat-icon>
+            Account Information
+          </h3>
+
+          <div class="profile-fields">
+            <div class="profile-field">
+              <label>User ID:</label>
+              <span class="user-id">{{ user.sub }}</span>
+            </div>
+
+            <div class="profile-field" *ngIf="user.app_metadata?.role">
+              <label>Role:</label>
+              <mat-chip class="role-chip">{{
+                user.app_metadata.role
+              }}</mat-chip>
+            </div>
+
+            <div
+              class="profile-field"
+              *ngIf="user.app_metadata?.permissions?.length"
+            >
+              <label>Permissions:</label>
+              <div class="permissions">
+                <mat-chip
+                  *ngFor="let permission of user.app_metadata.permissions"
+                  class="permission-chip"
+                >
+                  {{ permission }}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Actions -->
+        <div class="profile-actions">
+          <button mat-raised-button color="primary" (click)="updateProfile()">
+            <mat-icon>edit</mat-icon>
+            Edit Profile in Auth0
+          </button>
+
+          <button mat-stroked-button color="accent" (click)="viewAccessToken()">
+            <mat-icon>security</mat-icon>
+            View Access Token
+          </button>
+
+          <button mat-stroked-button routerLink="/tracker">
+            <mat-icon>arrow_back</mat-icon>
+            Back to Tracker
+          </button>
+        </div>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>

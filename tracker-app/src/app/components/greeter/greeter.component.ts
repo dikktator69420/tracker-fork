@@ -1,14 +1,16 @@
-// src/app/components/greeter/greeter.component.ts
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-greeter',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './greeter.component.html',
   styleUrls: ['./greeter.component.scss'],
 })
 export class GreeterComponent implements OnInit {
-  username: string | null = null;
+  username: string | undefined | null = undefined;
 
   constructor(private authService: AuthService) {}
 

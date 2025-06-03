@@ -1,10 +1,28 @@
-// src/app/components/tracker/tracker.component.ts
 import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import * as L from 'leaflet';
 import { LocationService } from '../../services/location.service';
+import { AuthService, UserProfile } from '../../services/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-tracker',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './tracker.component.html',
   styleUrls: ['./tracker.component.scss'],
 })
@@ -13,10 +31,16 @@ export class TrackerComponent implements OnInit, AfterViewInit {
   marker: L.Marker | null = null;
   currentPosition: GeolocationPosition | null = null;
   savingLocation = false;
-  message = '';
-  errorMessage = '';
+  gettingLocation = false;
+  user$: Observable<UserProfile | null | undefined>;
 
-  constructor(private locationService: LocationService) {}
+  constructor(
+    private locationService: LocationService,
+    private authService: AuthService,
+    private snackBar: MatSnackBar
+  ) {
+    this.user$ = this.authService.user$;
+  }
 
   ngOnInit(): void {
     // Add Leaflet CSS to the document
@@ -35,16 +59,38 @@ export class TrackerComponent implements OnInit, AfterViewInit {
 
   initMap(): void {
     // Create map with default view
-    this.map = L.map('map').setView([0, 0], 2);
+    this.map = L.map('map').setView([48.2082, 16.3738], 10); // Vienna, Austria
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
+
+    // Fix Leaflet marker icons
+    const iconRetinaUrl =
+      'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png';
+    const iconUrl =
+      'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png';
+    const shadowUrl =
+      'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png';
+
+    const defaultIcon = L.icon({
+      iconRetinaUrl,
+      iconUrl,
+      shadowUrl,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
+    L.Marker.prototype.options.icon = defaultIcon;
   }
 
   getCurrentLocation(): void {
+    this.gettingLocation = true;
+
     this.locationService
       .getCurrentPosition()
       .then((position) => {
@@ -61,40 +107,60 @@ export class TrackerComponent implements OnInit, AfterViewInit {
           this.marker = L.marker([latitude, longitude]).addTo(this.map);
         }
 
-        this.marker.bindPopup('Your current location').openPopup();
+        this.marker
+          .bindPopup(
+            `
+          <b>Your Current Location</b><br>
+          Lat: ${latitude.toFixed(6)}<br>
+          Lng: ${longitude.toFixed(6)}<br>
+          Accuracy: ${position.coords.accuracy.toFixed(2)}m
+        `
+          )
+          .openPopup();
+
+        this.gettingLocation = false;
+        this.showSnackBar('Location found successfully!', 'success');
       })
       .catch((error) => {
         console.error('Error getting location:', error);
-        this.errorMessage = `Error getting your location: ${error.message}`;
+        this.gettingLocation = false;
+        this.showSnackBar(`Error getting location: ${error.message}`, 'error');
       });
   }
 
   saveLocation(): void {
     if (!this.currentPosition) {
-      this.errorMessage = 'Unable to save: Location not available';
+      this.showSnackBar('No location available to save', 'error');
       return;
     }
 
     this.savingLocation = true;
-    this.message = '';
-    this.errorMessage = '';
-
     const { latitude, longitude } = this.currentPosition.coords;
 
     this.locationService.saveLocation(latitude, longitude).subscribe({
       next: () => {
-        this.message = 'Location saved successfully!';
         this.savingLocation = false;
+        this.showSnackBar('Location saved successfully!', 'success');
       },
-      error: (error) => {
-        this.errorMessage =
-          error.error?.message || 'Failed to save location. Please try again.';
+      error: (error: any) => {
+        console.error('Error saving location:', error);
         this.savingLocation = false;
+        this.showSnackBar(
+          'Failed to save location. Please try again.',
+          'error'
+        );
       },
     });
   }
 
   refreshLocation(): void {
     this.getCurrentLocation();
+  }
+
+  private showSnackBar(message: string, type: 'success' | 'error'): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: [`snackbar-${type}`],
+    });
   }
 }
