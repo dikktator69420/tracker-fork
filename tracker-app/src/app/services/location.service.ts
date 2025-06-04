@@ -1,44 +1,27 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, switchMap, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Location } from '../models/location.model';
-import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LocationService {
-  private apiUrl = 'http://localhost:3000/api'; // Updated to match backend
+  private apiUrl = 'http://localhost:3000';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient) {}
 
   saveLocation(latitude: number, longitude: number): Observable<Location> {
-    return this.authService.getUserId().pipe(
-      switchMap((userId: string | null) => {
-        if (!userId) {
-          return throwError(() => new Error('User not authenticated'));
-        }
-
-        // Updated endpoint to match backend
-        return this.http.post<Location>(`${this.apiUrl}/users/location`, {
-          latitude,
-          longitude,
-        });
-      })
-    );
+    return this.http.post<Location>(`${this.apiUrl}/users/location`, {
+      userid: 'test-user-123',
+      latitude,
+      longitude,
+      time: new Date(),
+    });
   }
 
   getLocations(): Observable<Location[]> {
-    return this.authService.getUserId().pipe(
-      switchMap((userId: string | null) => {
-        if (!userId) {
-          return throwError(() => new Error('User not authenticated'));
-        }
-
-        // Updated endpoint to match backend
-        return this.http.get<Location[]>(`${this.apiUrl}/users/locations/${userId}`);
-      })
-    );
+    return this.http.get<Location[]>(`${this.apiUrl}/users/locations/test-user-123`);
   }
 
   getCurrentPosition(): Promise<GeolocationPosition> {
@@ -49,8 +32,8 @@ export class LocationService {
       }
 
       navigator.geolocation.getCurrentPosition(
-        resolve,
-        (error) => {
+        (position: GeolocationPosition) => resolve(position),
+        (error: GeolocationPositionError) => {
           let message = 'Unable to retrieve your location';
           switch (error.code) {
             case error.PERMISSION_DENIED:

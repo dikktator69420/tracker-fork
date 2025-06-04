@@ -1,47 +1,82 @@
-<!-- src/app/components/tracker/tracker.component.html -->
-<div class="tracker-container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Location Tracker</mat-card-title>
-    </mat-card-header>
+<div class="tracker-container animate-in">
+  <mat-card class="tracker-card">
+    <!-- Header -->
+    <div class="card-header">
+      <h2>📍 Location Tracker</h2>
+      <p>Track and save your current location with precision</p>
+    </div>
 
-    <mat-card-content>
-      <div *ngIf="currentPosition" class="location-info">
-        <h3>Current Location</h3>
-        <p>
-          Latitude: {{ currentPosition.coords.latitude | number : "1.6-6" }}
-        </p>
-        <p>
-          Longitude: {{ currentPosition.coords.longitude | number : "1.6-6" }}
-        </p>
-        <p>
-          Accuracy:
-          {{ currentPosition.coords.accuracy | number : "1.2-2" }} meters
-        </p>
-        <p>Time: {{ currentPosition.timestamp | date : "medium" }}</p>
+    <!-- Current Location Info -->
+    <div *ngIf="currentPosition" class="location-info">
+      <h3>
+        <mat-icon>my_location</mat-icon>
+        Current Location
+      </h3>
+      <div class="location-details">
+        <div class="detail-item">
+          <strong>Latitude:</strong> {{ currentPosition.coords.latitude | number : "1.6-6" }}
+        </div>
+        <div class="detail-item">
+          <strong>Longitude:</strong> {{ currentPosition.coords.longitude | number : "1.6-6" }}
+        </div>
+        <div class="detail-item">
+          <strong>Accuracy:</strong> {{ currentPosition.coords.accuracy | number : "1.2-2" }}m
+        </div>
+        <div class="detail-item">
+          <strong>Time:</strong> {{ currentPosition.timestamp | date : "medium" }}
+        </div>
       </div>
+    </div>
 
-      <div id="map"></div>
-
-      <div class="button-container">
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="saveLocation()"
-          [disabled]="!currentPosition || savingLocation"
-        >
-          <mat-icon>save</mat-icon> Save Location
-        </button>
-        <button mat-raised-button (click)="refreshLocation()">
-          <mat-icon>refresh</mat-icon> Refresh Location
-        </button>
-        <button mat-raised-button color="accent" routerLink="/list">
-          <mat-icon>list</mat-icon> View All Locations
-        </button>
+    <!-- Map Container -->
+    <div id="map" [class.loading]="gettingLocation">
+      <div *ngIf="gettingLocation" class="loading-overlay">
+        <div class="loading-content">
+          <mat-icon>location_searching</mat-icon>
+          <p>Finding your location...</p>
+        </div>
       </div>
+    </div>
 
-      <div *ngIf="message" class="success-message">{{ message }}</div>
-      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-    </mat-card-content>
+    <!-- Action Buttons -->
+    <div class="button-container">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="saveLocation()"
+        [disabled]="!currentPosition || savingLocation"
+      >
+        <mat-icon>save</mat-icon>
+        <span *ngIf="!savingLocation">Save Location</span>
+        <span *ngIf="savingLocation">Saving...</span>
+      </button>
+
+      <button 
+        mat-raised-button 
+        (click)="refreshLocation()"
+        [disabled]="gettingLocation"
+      >
+        <mat-icon>refresh</mat-icon>
+        <span *ngIf="!gettingLocation">Refresh Location</span>
+        <span *ngIf="gettingLocation">Getting Location...</span>
+      </button>
+
+      <button mat-raised-button color="accent" routerLink="/list">
+        <mat-icon>list</mat-icon>
+        View All Locations
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="message-container">
+      <div *ngIf="message" class="success-message">
+        <mat-icon>check_circle</mat-icon>
+        {{ message }}
+      </div>
+      <div *ngIf="errorMessage" class="error-message">
+        <mat-icon>error</mat-icon>
+        {{ errorMessage }}
+      </div>
+    </div>
   </mat-card>
 </div>

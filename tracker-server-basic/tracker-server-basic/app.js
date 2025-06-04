@@ -6,17 +6,26 @@ const http = require('http');
 
 const app = express();
 const port = config.get('appConfig.port');
-const origin = config.get('appConfig.origin');
+
+// Fix CORS - allow requests from frontend
+app.use(cors({
+  origin: [
+    'http://localhost:4200',
+    'http://127.0.0.1:4200'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: origin }));
 
-// Add /api prefix to match frontend expectations
-app.use('/api/users', userRouter);
+// Add /users prefix to match frontend expectations
+app.use('/users', userRouter);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Location Tracker API is running' });
 });
 
@@ -35,6 +44,6 @@ function errorHandler(err, req, res, next) {
 app.use(errorHandler);
 
 const server = http.createServer(app);
-server.listen(port, "localhost", () => {
+server.listen(port, () => {
   console.log(`Location Tracker API listening on port ${port}`);
 });

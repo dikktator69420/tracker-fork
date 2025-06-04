@@ -1,51 +1,117 @@
-/* src/app/app.component.scss */
-.spacer {
-  flex: 1 1 auto;
-}
-
+/* Modern App Component Styles */
 .container {
-  padding: 20px;
-  max-width: 1200px;
+  min-height: calc(100vh - 64px);
+  padding: 24px;
+  max-width: 1400px;
   margin: 0 auto;
+  background: transparent;
 }
 
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
+mat-toolbar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
+  padding: 0 24px;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+
+  .toolbar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    background-clip: border-box;
+    -webkit-text-fill-color: transparent;
+    margin-right: auto;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    button {
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+      }
+
+      mat-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #667eea;
+      transform: scale(1.05);
+    }
+  }
+
+  .spacer {
+    flex: 1;
+  }
 }
 
 .user-info {
   padding: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
 
   .user-name {
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 4px;
   }
 
   .user-email {
-    color: #666;
+    opacity: 0.9;
     font-size: 14px;
   }
 }
 
-mat-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Add top margin to account for fixed toolbar */
+.container {
+  margin-top: 64px;
 }
 
-mat-spinner {
-  margin-right: 16px;
-}
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  mat-toolbar {
+    padding: 0 16px;
 
-button[mat-button] {
-  margin-right: 8px;
+    .toolbar-title {
+      font-size: 1.25rem;
+    }
 
-  mat-icon {
-    margin-right: 4px;
+    .nav-buttons {
+      gap: 4px;
+
+      button span {
+        display: none; // Hide text on mobile, keep icons
+      }
+    }
+  }
+
+  .container {
+    padding: 16px;
+    margin-top: 64px;
   }
 }
