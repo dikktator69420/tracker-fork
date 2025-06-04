@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
   auth0: {
-    domain: 'dev-fx0fip6dxo84kn1p.com',
-    clientId: 'dev-fx0fip6dxo84kn1p',
+    domain: 'dev-xxjgz6slv15o564e.eu.auth0.com', // Replace with your domain
+    clientId: 'lYsEzLmPvP5AB3jj8hM2OiFoxNsXunuR',      // Replace with your client ID
     authorizationParams: {
       redirect_uri: 'http://localhost:4200/callback',
       audience: 'https://tracker-api',
