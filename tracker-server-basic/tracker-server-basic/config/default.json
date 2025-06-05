@@ -1,8 +1,8 @@
 {
   "dbConfig": {
-    "host": "localhost",
-    "user": "tracker25",
-    "pwd": "Spengergasse 20",
+    "host": "database",
+    "user": "tracker25", 
+    "pwd": "password",
     "database": "tracker25",
     "connectionLimit": 13
   },
@@ -13,14 +13,5 @@
       "http://127.0.0.1:4200",
       "http://10.0.2.2:4200"
     ]
-  },
-  "database": {
-    "host": "localhost",
-    "user": "root",
-    "password": "password",
-    "database": "tracker"
-  },
-  "cors": {
-    "origin": "http://localhost:4200"
   }
 }

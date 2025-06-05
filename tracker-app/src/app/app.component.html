@@ -1,24 +1,34 @@
 <mat-toolbar color="primary">
-  <span>{{ title }}</span>
-  <span class="spacer"></span>
-
+  <span class="toolbar-title">{{ title }}</span>
+  
   <!-- Loading spinner -->
   <mat-spinner *ngIf="isLoading$ | async" diameter="24" color="accent">
   </mat-spinner>
 
-  <!-- Authenticated user menu -->
-  <ng-container *ngIf="isAuthenticated$ | async">
-    <button mat-button routerLink="/tracker" data-cy="tracker-button">
+  <!-- Navigation buttons for authenticated users -->
+  <div *ngIf="isAuthenticated$ | async" class="nav-buttons">
+    <button 
+      mat-button 
+      (click)="navigateTo('/tracker')" 
+      data-cy="tracker-button">
       <mat-icon>location_on</mat-icon>
-      Tracker
+      <span>Tracker</span>
     </button>
-    <button mat-button routerLink="/list" data-cy="locations-button">
+    
+    <button 
+      mat-button 
+      (click)="navigateTo('/list')" 
+      data-cy="locations-button">
       <mat-icon>list</mat-icon>
-      My Locations
+      <span>My Locations</span>
     </button>
-    <button mat-button routerLink="/profile" data-cy="profile-button">
+    
+    <button 
+      mat-button 
+      (click)="navigateTo('/profile')" 
+      data-cy="profile-button">
       <mat-icon>person</mat-icon>
-      Profile
+      <span>Profile</span>
     </button>
 
     <!-- User menu -->
@@ -36,20 +46,20 @@
 
     <mat-menu #userMenu="matMenu">
       <div class="user-info">
-        <div class="user-name">{{ (user$ | async)?.name }}</div>
+        <div class="user-name">{{ (user$ | async)?.name || (user$ | async)?.email }}</div>
         <div class="user-email">{{ (user$ | async)?.email }}</div>
       </div>
       <mat-divider></mat-divider>
-      <button mat-menu-item routerLink="/profile">
+      <button mat-menu-item (click)="navigateTo('/profile')">
         <mat-icon>settings</mat-icon>
-        Settings
+        <span>Settings</span>
       </button>
       <button mat-menu-item (click)="logout()" data-cy="logout-button">
         <mat-icon>logout</mat-icon>
-        Logout
+        <span>Logout</span>
       </button>
     </mat-menu>
-  </ng-container>
+  </div>
 
   <!-- Login button for unauthenticated users -->
   <button
@@ -59,7 +69,7 @@
     (click)="login()"
   >
     <mat-icon>login</mat-icon>
-    Login
+    <span>Login</span>
   </button>
 </mat-toolbar>
 
