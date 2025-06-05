@@ -26,11 +26,12 @@ DROP TABLE IF EXISTS `location`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `location` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `userid` int NOT NULL,
+  `userid` VARCHAR(255) NOT NULL,
   `latitude` float NOT NULL,
   `longitude` float NOT NULL,
   `time` datetime(6) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX `idx_location_userid` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -62,8 +63,12 @@ CREATE TABLE `user` (
   `postalcode` varchar(10) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   `city` varchar(20) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   `country` varchar(20) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  `auth0_id` VARCHAR(255) UNIQUE,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `username` (`username`),
+  INDEX `idx_user_auth0_id` (`auth0_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

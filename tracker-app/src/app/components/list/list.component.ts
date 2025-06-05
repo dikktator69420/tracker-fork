@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -7,6 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { Location } from '../../models/location.model';
 import { LocationService } from '../../services/location.service';
+import { AuthService } from '@auth0/auth0-angular';
+import { Subject, combineLatest } from 'rxjs';
+import { takeUntil, filter, switchMap } from 'rxjs/operators';
 import * as L from 'leaflet';
 
 @Component({
@@ -23,25 +26,55 @@ import * as L from 'leaflet';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
 })
-export class ListComponent implements OnInit {
+export class ListComponent implements OnInit, OnDestroy {
   locations: Location[] = [];
   map!: L.Map;
   loading = true;
   errorMessage = '';
+  
+  private destroy$ = new Subject<void>();
 
-  constructor(private locationService: LocationService) {}
+  constructor(
+    private locationService: LocationService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.fetchLocations();
+    // Wait for Auth0 to be ready before fetching data
+    this.waitForAuthAndFetch();
   }
 
-  fetchLocations(): void {
-    this.loading = true;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    this.locationService.getLocations().subscribe({
+  /**
+   * Wait for authentication to be complete before fetching locations
+   */
+  private waitForAuthAndFetch(): void {
+    console.log('🔍 Waiting for authentication to complete...');
+    
+    combineLatest([
+      this.authService.isAuthenticated$,
+      this.authService.isLoading$
+    ]).pipe(
+      takeUntil(this.destroy$),
+      filter(([isAuthenticated, isLoading]) => {
+        console.log('🔍 Auth state:', { isAuthenticated, isLoading });
+        // Only proceed when not loading and user is authenticated
+        return !isLoading && isAuthenticated;
+      }),
+      switchMap(() => {
+        console.log('✅ Auth ready, fetching locations...');
+        return this.locationService.getLocations();
+      })
+    ).subscribe({
       next: (locations: Location[]) => {
+        console.log('📍 Locations received:', locations);
         this.locations = locations;
         this.loading = false;
+        this.errorMessage = '';
 
         // Initialize map after we have locations
         setTimeout(() => {
@@ -49,9 +82,35 @@ export class ListComponent implements OnInit {
           this.addLocationMarkers();
         }, 100);
       },
-      error: (error: { error: { message: string } }) => {
-        this.errorMessage =
-          error.error?.message || 'Failed to fetch locations.';
+      error: (error: any) => {
+        console.error('❌ Error fetching locations:', error);
+        this.errorMessage = error.message || 'Failed to fetch locations.';
+        this.loading = false;
+      }
+    });
+  }
+
+  fetchLocations(): void {
+    console.log('🔄 Manual refresh requested');
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.locationService.getLocations().subscribe({
+      next: (locations: Location[]) => {
+        this.locations = locations;
+        this.loading = false;
+
+        // Re-initialize map after refresh
+        if (this.map) {
+          this.map.remove();
+        }
+        setTimeout(() => {
+          this.initMap();
+          this.addLocationMarkers();
+        }, 100);
+      },
+      error: (error: { message: string }) => {
+        this.errorMessage = error.message || 'Failed to fetch locations.';
         this.loading = false;
       },
     });

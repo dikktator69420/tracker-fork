@@ -57,8 +57,11 @@ export class TrackerComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.initMap();
-    this.getCurrentLocation();
+    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.initMap();
+      this.getCurrentLocation();
+    }, 0);
   }
 
   initMap(): void {
@@ -90,42 +93,49 @@ export class TrackerComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation(): void {
+  // Clear any existing messages first
+  this.message = '';
+  this.errorMessage = '';
+  
+  // Use setTimeout to prevent timing issues
+  setTimeout(() => {
     this.gettingLocation = true;
+  }, 0);
 
-    this.locationService
-      .getCurrentPosition()
-      .then((position) => {
-        this.currentPosition = position;
-        const { latitude, longitude } = position.coords;
+  this.locationService
+    .getCurrentPosition()
+    .then((position) => {
+      this.currentPosition = position;
+      const { latitude, longitude } = position.coords;
 
-        this.map.setView([latitude, longitude], 15);
+      this.map.setView([latitude, longitude], 15);
 
-        if (this.marker) {
-          this.marker.setLatLng([latitude, longitude]);
-        } else {
-          this.marker = L.marker([latitude, longitude]).addTo(this.map);
-        }
+      if (this.marker) {
+        this.marker.setLatLng([latitude, longitude]);
+      } else {
+        this.marker = L.marker([latitude, longitude]).addTo(this.map);
+      }
 
-        this.marker
-          .bindPopup(
-            `
-          <b>Your Current Location</b><br>
-          Lat: ${latitude.toFixed(6)}<br>
-          Lng: ${longitude.toFixed(6)}<br>
-          Accuracy: ${position.coords.accuracy.toFixed(2)}m
-        `
-          )
-          .openPopup();
+      this.marker
+        .bindPopup(
+          `
+        <b>Your Current Location</b><br>
+        Lat: ${latitude.toFixed(6)}<br>
+        Lng: ${longitude.toFixed(6)}<br>
+        Accuracy: ${position.coords.accuracy.toFixed(2)}m
+      `
+        )
+        .openPopup();
 
-        this.gettingLocation = false;
-        this.showSnackBar('Location found successfully!', 'success');
-      })
-      .catch((error) => {
-        console.error('Error getting location:', error);
-        this.gettingLocation = false;
-        this.showSnackBar(`Error getting location: ${error.message}`, 'error');
-      });
-  }
+      this.gettingLocation = false;
+      this.showSnackBar('Location found successfully!', 'success');
+    })
+    .catch((error) => {
+      console.error('Error getting location:', error);
+      this.gettingLocation = false;
+      this.showSnackBar(`Error getting location: ${error.message}`, 'error');
+    });
+}
 
   saveLocation(): void {
     if (!this.currentPosition) {

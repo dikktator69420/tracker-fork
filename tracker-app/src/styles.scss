@@ -1,5 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Add to your existing styles.scss */
+
+/* Snackbar Styles */
+.snackbar-error {
+  .mat-mdc-snack-bar-container {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}
+
+.snackbar-success {
+  .mat-mdc-snack-bar-container {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+}
+
+.snackbar-warning {
+  .mat-mdc-snack-bar-container {
+    background-color: #ff9800 !important;
+    color: white !important;
+  }
+}
+
+.snackbar-info {
+  .mat-mdc-snack-bar-container {
+    background-color: #2196f3 !important;
+    color: white !important;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

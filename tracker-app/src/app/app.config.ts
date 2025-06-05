@@ -20,7 +20,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Auth0 imports
 import { provideAuth0 } from '@auth0/auth0-angular';
-import { authHttpInterceptorFn } from '@auth0/auth0-angular'; // Updated import
+import { authHttpInterceptorFn } from '@auth0/auth0-angular';
+
+// Custom interceptors
+import { authErrorInterceptor } from './interceptors/auth-error.interceptor';
 
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
@@ -28,7 +31,11 @@ import { environment } from '../environments/environment';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authHttpInterceptorFn])), // Updated interceptor
+    // Order matters: Auth0 interceptor first, then error handling
+    provideHttpClient(withInterceptors([
+      authHttpInterceptorFn,
+      authErrorInterceptor
+    ])),
     provideAnimations(),
     provideAuth0(environment.auth0),
     importProvidersFrom(
